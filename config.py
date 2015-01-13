@@ -3,7 +3,7 @@ from distutils.util import strtobool
 
 class Config(object):
     DEBUG = True
-    REDIS_URL = os.environ.get('REDISTOGO_URL')
+    REDIS_URL = os.environ.get('REDISCLOUD_URL')
 
     AUTH_USER = 'admin'
 

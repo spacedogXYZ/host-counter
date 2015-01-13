@@ -33,4 +33,15 @@ When the dev server is running, the demo front-end will be accessible at http://
 Production
 -----
 
-Heroku
+Deploy to Heroku with a Redis add-on. You may need to adjust the config variables to export to REDIS_URL.
+
+Benchmarking
+-----
+
+On Heroku with 4 dynos, we can measure over 300 req/sec using ApacheBench:
+
+    ab -n 1000 -c 100 -T application/x-www-form-urlencoded -p post.data http://host-counter.herokuapp.com/log
+
+With more realistic AJAX requests, we measure only about 50 req/sec:
+
+    http://jsfiddle.net/jlevinger/w008sgrs/1/

@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, abort
 from flask_jsonpify import jsonify
 from access_control_decorator import crossdomain, requires_auth
 
@@ -15,10 +15,10 @@ def home():
     return "Host Counter"
 
 @app.route("/log", methods=['POST',])
-@crossdomain('*')
+@crossdomain(origin='*')
 def log():
-    if request.data:
-        data = json.loads(request.data)
+    if request.form:
+        data = request.form
         if 'host' in data:
             #cache key as {host}:{campaign}:{stat}
             host_key = '%(host)s:%(campaign)s:%(stat)s' % data
@@ -32,8 +32,8 @@ def log():
 
             return jsonify({'status':"OK"})
         else:
-            return jsonify({'error':"missing host"})
-    return jsonify({'error':"missing data"})
+            return abort(422, {'error':"missing host"})
+    return abort(400, {'error':"missing data"})
 
 @app.route('/list', methods=['GET',])
 @requires_auth

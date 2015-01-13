@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 from flask_jsonpify import jsonify
-from access_control_decorator import crossdomain
+from access_control_decorator import crossdomain, requires_auth
 
 import redis
 import json
@@ -32,10 +32,11 @@ def log():
 
             return jsonify({'status':"OK"})
         else:
-            print jsonify({'error':"missing host"})
+            return jsonify({'error':"missing host"})
     return jsonify({'error':"missing data"})
 
 @app.route('/list', methods=['GET',])
+@requires_auth
 def list():
     hosts = r.zrevrange('host',0,10, withscores=True)
 
@@ -51,5 +52,5 @@ def list():
 
 if __name__ == "__main__":
     # load the debugger config
-    app.config.from_object('config.Config')
+    app.config.from_object('config.ConfigLocal')
     app.run(host='0.0.0.0')

@@ -3,18 +3,26 @@ from flask_jsonpify import jsonify
 from access_control_decorator import crossdomain, requires_auth
 
 import redis
-import json
+import urlparse
 
 app = Flask(__name__)
-app.config.from_object('config.ConfigProduction')
 
-r = redis.StrictRedis(host=app.config['REDIS_URL'], port=6379, db=0)
+if __name__ == "__main__":
+    app.config.from_object('config.ConfigLocal')
+else:
+    app.config.from_object('config.ConfigProduction')
+
+#REDIS_URL contains auth+port, but StrictRedis constructor needs it separately
+redis_url = urlparse.urlparse(app.config['REDIS_URL'])
+r = redis.StrictRedis(host=redis_url.hostname,
+                      port=redis_url.port,
+                      password=redis_url.password)
 
 @app.route("/")
 def home():
     return "Host Counter"
 
-@app.route("/log", methods=['POST',])
+@app.route("/log", methods=['POST','OPTIONS'])
 @crossdomain(origin='*')
 def log():
     if request.form:
@@ -51,6 +59,4 @@ def list():
     return render_template('list.html', top_hosts=top_hosts)
 
 if __name__ == "__main__":
-    # load the debugger config
-    app.config.from_object('config.ConfigLocal')
     app.run(host='0.0.0.0')
